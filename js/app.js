@@ -1,10 +1,11 @@
 var map, info, bounds;
 var markers = [];
-var fq;
+var fq = 'No popular location found';
 
 var LocationModel = function() {
 	this.currentLocation = null;
-	this.locations = ko.observableArray( [
+	this.query = ko.observable('');
+	this.locations = ko.observableArray([
 		{
 			title:'Ikeja City Mall',
 			location: {
@@ -55,10 +56,18 @@ var LocationModel = function() {
 			}
 		}
 	]);
+	var selfLM = this;
+	this.search = ko.computed(function() {
+	    var q = selfLM.query();
+	    return selfLM.locations().filter(function(i) {
+	      return i.title.toLowerCase().indexOf(q) >= 0;
+	    });
+	});
 }
 
 var MarkerModel = {
 	markers: [],
+	currentMarker: null,
 	init: function() {
 		locations = new LocationModel().locations();
 		length = locations.length;
@@ -85,7 +94,7 @@ var MarkerModel = {
 	show: function(marker) {
 		if(info.marker != marker) {
 			info.marker = marker;
-			this.getFousquareInfo(marker.getPosition());
+			this.getFourSquareInfo(marker.getPosition());
 			info.setContent(marker.getTitle() + ' - ' + fq);
 			info.open(map, marker);
 			info.addListener('closeclick', function() {
@@ -93,7 +102,7 @@ var MarkerModel = {
 			})
 		}
 	},
-	getFousquareInfo: function(position) {
+	getFourSquareInfo: function(position) {
 		$.ajax({
 		  	url: 'https://api.foursquare.com/v2/venues/explore',
 		  	method: 'GET',
@@ -106,24 +115,29 @@ var MarkerModel = {
 		  	}
 		}).done(function(data) {
 			name = data.response.groups[0].items[0].venue.name;
-			if (name == 'undefined') {
+			if (name == 'undefined' || name == null) {
 				fq = 'No popular location found';
+				toastr.error('Unable to retrieve popular Locations around the mall you searched', 'Error!')  
 			} else {
 				fq = 'Popular Location: ' +  name;
 			}
 		}).fail(function(data) {
-			console.log(data)          
+			toastr.error('Unable to retrieve popular Locations around the mall you searched', 'Error!')         
 		});
-	} 
+	}
 }
 
 var LocationController = {
 	init: function() {
-		ko.applyBindings(new LocationModel());
-		this.initMap();
-		MarkerModel.init();
-		LocationView.search();
-		LocationView.show();
+		if(typeof google !== 'object') {
+			toastr.error('Sorry the Google Map API is curently not reachable', 'Error!')   
+		} else {
+			//LocationView.search();
+			ko.applyBindings(new LocationModel());
+			this.initMap();
+			MarkerModel.init();
+			LocationView.show();
+		}
 	},
 	initMap: function() {
 		map = new google.maps.Map(document.getElementById('map'), {
@@ -154,13 +168,14 @@ var LocationView = {
                 }
             }
         });
-
     }, 
     show: function() {
     	$('.nav-link').on('click', function() {
     		markers = MarkerModel.markers;
             for (i = 0; i < markers.length; i++) {
                 if (markers[i].getTitle() == $(this).data('name')) {
+                	if(markers.currentMarker) markers.currentMarker.setAnimation(null);
+                	markers.currentMarker = markers[i];
                     markers[i].setMap(map);
                     markers[i].setAnimation(google.maps.Animation.BOUNCE);
                     MarkerModel.show(markers[i]);

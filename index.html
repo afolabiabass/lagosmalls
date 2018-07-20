@@ -9,6 +9,7 @@
 	   	<title>Malls - Find your nearest Mall</title>
 
 	    <link href="css/bootstrap.min.css" rel="stylesheet">
+	    <link href="css/toastr.css" rel="stylesheet">
 	    <link href="css/style.css" rel="stylesheet">
   	</head>
 
@@ -21,7 +22,7 @@
 	        	</button>
 
 	        	<div class="collapse navbar-collapse" id="navbarsExampleDefault">
-	            	<input class="form-control mr-sm-2" id="search" type="text" placeholder="Search for a Mall" aria-label="Search">
+	            	<input class="form-control mr-sm-2" id="search" type="text" placeholder="Search for a Mall" data-bind="value: query, valueUpdate: 'keyup'" aria-label="Search">
 	        	</div>
 	      	</nav>
 	    </header>
@@ -29,7 +30,13 @@
 	    <div class="container-fluid">
 	      	<div class="row">
 		        <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
-		          	<ul class="nav nav-pills flex-column" id="mallItems" data-bind="foreach: locations">
+		        	<!-- <h5 class="nav-item"><b>Search Result:</b></h5>
+		          	<ul class="nav nav-pills flex-column" data-bind="foreach: search">
+			            <li class="nav-item">
+			              <a class="nav-link" href="javascript:void(0);" data-bind="text: title, attr: {'data-name': title}"></a>
+			            </li>
+		          	</ul> -->
+		          	<ul class="nav nav-pills flex-column" id="mallItems" data-bind="foreach: search">
 			            <li class="nav-item">
 			              <a class="nav-link" href="javascript:void(0);" data-bind="text: title, attr: {'data-name': title}"></a>
 			            </li>
@@ -46,6 +53,7 @@
 	    <script type='text/javascript' src="js/jquery-3.1.1.min.js"></script>
 	    <script type='text/javascript' src="js/popper.min.js"></script>
 	    <script type='text/javascript' src="js/bootstrap.min.js"></script>
+	    <script type='text/javascript' src='js/toastr.js'></script>
 		<script type='text/javascript' src='js/knockout.js'></script>
 		<script src="http://maps.googleapis.com/maps/api/js?libraries=places&v=3&key=AIzaSyDzcUOHCfNaKkRDUmkol-vzAJvwD8wcKXg">
 		</script>
