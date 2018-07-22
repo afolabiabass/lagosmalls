@@ -58,17 +58,42 @@ var LocationModel = function() {
 	]);
 	var selfLM = this;
 	this.search = ko.computed(function() {
+		//Search function for location
 	    var q = selfLM.query();
 	    return selfLM.locations().filter(function(i) {
 	      return i.title.toLowerCase().indexOf(q) >= 0;
 	    });
 	});
+
+	this.showLocation = function(marker) {
+		markers = MarkerModel.markers;
+        for (i = 0; i < markers.length; i++) {
+            if (markers[i].getTitle() == marker.title && info.marker != markers[i]) {
+            	if(MarkerModel.currentMarker) MarkerModel.currentMarker.setAnimation(null);
+            	MarkerModel.currentMarker = markers[i];
+                markers[i].setMap(map);
+                markers[i].setAnimation(google.maps.Animation.BOUNCE);
+                MarkerModel.show(markers[i]);
+                map.setCenter(markers[i].getPosition());
+                bounds.extend(markers[i].getPosition());
+
+                info.marker = markers[i];
+				MarkerModel.getFourSquareInfo(markers[i].getPosition());
+				info.setContent(markers[i].getTitle() + ' - ' + fq);
+				info.open(map, markers[i]);
+				info.addListener('closeclick', function() {
+					info.marker = null;
+				})
+            }
+        }
+	};
 }
 
 var MarkerModel = {
 	markers: [],
 	currentMarker: null,
 	init: function() {
+		//Load each location data from location model as markers on the map
 		locations = new LocationModel().locations();
 		length = locations.length;
 		var self = this;
@@ -85,6 +110,9 @@ var MarkerModel = {
 			marker.addListener('click', function() {
 				map.setZoom(15);
 				map.setCenter(this.getPosition());
+				if(self.currentMarker) self.currentMarker.setAnimation(null);
+				self.currentMarker = this;
+				this.setAnimation(google.maps.Animation.BOUNCE);
 				self.show(this);
 			});
 			bounds.extend(locations[i].location);
@@ -103,6 +131,7 @@ var MarkerModel = {
 		}
 	},
 	getFourSquareInfo: function(position) {
+		//Function to retrieve third-party data on location.
 		$.ajax({
 		  	url: 'https://api.foursquare.com/v2/venues/explore',
 		  	method: 'GET',
@@ -132,14 +161,13 @@ var LocationController = {
 		if(typeof google !== 'object') {
 			toastr.error('Sorry the Google Map API is curently not reachable', 'Error!')   
 		} else {
-			//LocationView.search();
 			ko.applyBindings(new LocationModel());
 			this.initMap();
 			MarkerModel.init();
-			LocationView.show();
 		}
 	},
 	initMap: function() {
+		//Function to initiate map into window.
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: {lat: 6.524379, lng: 3.379206},
 			zoom: 13
@@ -149,43 +177,6 @@ var LocationController = {
 	}
 }
 
-var LocationView = {
-	search: function () {
-        var input, filter, li, a, i;
-        $('#search').on('keyup', function() {
-            filter = $(this).val().toLowerCase();
-            items = $('.nav-item');
-            markers = MarkerModel.markers;
-            for (i = 0; i < items.length; i++) {
-                a = items[i].childNodes[1];
-                str = a.innerHTML.toString().toLowerCase();
-                if (str.indexOf(filter) > -1) {
-                    items[i].style.display = "";
-                    markers[i].setMap(map);
-                } else {
-                    items[i].style.display = "none";
-                    markers[i].setMap(null);
-                }
-            }
-        });
-    }, 
-    show: function() {
-    	$('.nav-link').on('click', function() {
-    		markers = MarkerModel.markers;
-            for (i = 0; i < markers.length; i++) {
-                if (markers[i].getTitle() == $(this).data('name')) {
-                	if(markers.currentMarker) markers.currentMarker.setAnimation(null);
-                	markers.currentMarker = markers[i];
-                    markers[i].setMap(map);
-                    markers[i].setAnimation(google.maps.Animation.BOUNCE);
-                    MarkerModel.show(markers[i]);
-                    map.setCenter(markers[i].getPosition());
-                    bounds.extend(markers[i].getPosition());
-                }
-            }
-    	});
-    }
-}
-
+//Initiate Controller
 LocationController.init();
 

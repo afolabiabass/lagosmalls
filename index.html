@@ -8,48 +8,47 @@
 
 	   	<title>Malls - Find your nearest Mall</title>
 
+	   	<!-- CSS -->
 	    <link href="css/bootstrap.min.css" rel="stylesheet">
 	    <link href="css/toastr.css" rel="stylesheet">
 	    <link href="css/style.css" rel="stylesheet">
   	</head>
 
   	<body>
+  		<!-- Header Start -->
 	    <header>
 	      	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 	        	<a class="navbar-brand" href="/">Malls</a>
 	        	<button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
 	          		<span class="navbar-toggler-icon"></span>
 	        	</button>
-
+	        	<!-- Search Bar Start -->
 	        	<div class="collapse navbar-collapse" id="navbarsExampleDefault">
 	            	<input class="form-control mr-sm-2" id="search" type="text" placeholder="Search for a Mall" data-bind="value: query, valueUpdate: 'keyup'" aria-label="Search">
 	        	</div>
+	        	<!-- \ Search Bar End -->
 	      	</nav>
 	    </header>
+	    <!-- \ Header End -->
 
 	    <div class="container-fluid">
 	      	<div class="row">
 		        <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
-		        	<!-- <h5 class="nav-item"><b>Search Result:</b></h5>
-		          	<ul class="nav nav-pills flex-column" data-bind="foreach: search">
-			            <li class="nav-item">
-			              <a class="nav-link" href="javascript:void(0);" data-bind="text: title, attr: {'data-name': title}"></a>
-			            </li>
-		          	</ul> -->
 		          	<ul class="nav nav-pills flex-column" id="mallItems" data-bind="foreach: search">
 			            <li class="nav-item">
-			              <a class="nav-link" href="javascript:void(0);" data-bind="text: title, attr: {'data-name': title}"></a>
+			              <a class="nav-link" href="javascript:void(0);" data-bind="text: title, attr: {'data-name': title}, click: $parent.showLocation"></a>
 			            </li>
 		          	</ul>
 		        </nav>
-
+		        <!-- Main Section Start -->
 		        <main role="main" class="col-sm-9 ml-sm-auto col-md-10">
-		        	<div id="map" style="height:100vh;"></div>
+		        	<div id="map" style="height:100vh;margin-left:-15px;margin-right:-15px;"></div>
 	        	</main>
+	        	<!-- \ Main Section End -->
 	      	</div>
 	    </div>
 
-	    
+	    <!-- Scripts -->
 	    <script type='text/javascript' src="js/jquery-3.1.1.min.js"></script>
 	    <script type='text/javascript' src="js/popper.min.js"></script>
 	    <script type='text/javascript' src="js/bootstrap.min.js"></script>
